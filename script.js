@@ -84,10 +84,36 @@ const items = [{
     },
 ];
 
+let currentState = [...items];
+
 const itemsContainer = document.querySelector('#shop-items');
 const itemsTemplate = document.querySelector('#item-template');
+const nothingFound = document.querySelector("#nothing-found");
 
-function preparShopItem(shopItem) {
+function renderItems(arr) {
+    nothingFound.textContent = "";
+    itemsContainer.innerHTML = "";
+    arr.forEach((item) => {
+        itemsContainer.append(prepareShopItem(item));
+    });
+    if (!arr.length) {
+        nothingFound.textContent = "Ничего не найдено";
+    }
+}
+
+function sortByAlphabet(a, b) {
+    if (a.title > b.title) {
+        return 1;
+    }
+    if (a.title < b.title) {
+        return -1;
+    }
+    return 0;
+}
+
+renderItems(currentState.sort((a, b) => sortByAlphabet(a, b)));
+
+function prepareShopItem(shopItem) {
 
     const { title, description, tags, price, img } = shopItem;
 
@@ -111,10 +137,18 @@ function preparShopItem(shopItem) {
 }
 
 
-function renderItems(arr) {
-    arr.forEach((item) => {
-        itemsContainer.append(preparShopItem(item));
-    })
+const searchButton = document.querySelector('#search-btn');
+const searchInput = document.querySelector('#search-input');
+
+function applySearch() {
+    const searchString = searchInput.value.trim().toLowerCase();
+
+    currentState = items.filter((el) =>
+        el.title.toLowerCase().includes(searchString)
+    );
+    currentState.sort((a, b) => sortByAlphabet(a, b));
+    renderItems(currentState);
 }
 
-renderItems(items);
+searchButton.addEventListener("click", applySearch);
+searchInput.addEventListener("search", applySearch);
